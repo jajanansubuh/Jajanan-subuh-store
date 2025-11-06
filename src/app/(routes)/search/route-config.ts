@@ -1,2 +1,2 @@
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
+export const dynamic = 'auto';
+export const revalidate = 3600; // Revalidate every hour

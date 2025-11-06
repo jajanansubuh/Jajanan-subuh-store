@@ -2,16 +2,13 @@ import getProducts from "@/actions/get-products";
 import ProductListWithSort from "@/components/product-list-with-sort";
 import Container from "@/components/ui/container";
 import { Product } from "@/types";
-import './route-config';
+export const dynamic = 'auto';
+export const revalidate = 3600; // Revalidate every hour
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
+type SearchParams = { [key: string]: string | string[] | undefined };
 
-interface SearchPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-const SearchPage = async ({ searchParams }: SearchPageProps) => {
+const SearchPage = async (props: unknown) => {
+  const searchParams: SearchParams | undefined = (props as { searchParams?: SearchParams })?.searchParams;
   const qRaw = Array.isArray(searchParams?.q)
     ? searchParams.q[0]
     : searchParams?.q;
