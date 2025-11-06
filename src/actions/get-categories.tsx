@@ -5,10 +5,8 @@ const URL = `${API_BASE}/categories`;
 
 const getCategories = async (): Promise<Category[]> => {
   try {
-    // Add cache: 'no-store' to prevent stale data during build
     const res = await fetch(URL, {
-      cache: 'no-store',
-      next: { revalidate: 3600 } // Revalidate every hour
+      next: { revalidate: 3600 } // Revalidate every hour, allows static build
     });
 
     if (!res.ok) {

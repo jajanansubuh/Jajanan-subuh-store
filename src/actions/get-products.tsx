@@ -8,6 +8,7 @@ const URL = `${API_BASE}/products`;
 interface Query {
   categoryId?: string;
   isFeatured?: boolean;
+  q?: string;
 }
 
 const getProducts = async (query: Query): Promise<Product[]> => {
@@ -16,6 +17,7 @@ const getProducts = async (query: Query): Promise<Product[]> => {
     query: {
       categoryId: query.categoryId,
       isFeatured: query.isFeatured,
+      q: query.q,
     },
   });
 
