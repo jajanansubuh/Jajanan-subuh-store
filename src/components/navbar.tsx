@@ -5,11 +5,19 @@ import NavActions from "./nav-actions";
 import getCategories from "@/actions/get-categories";
 import LogoLoader from "./logo-loader";
 
+import { Category } from "@/types";
+
 export const revalidate = 0;
 
 const Navbar = async () => {
-  // Ambil data kategori dari API
-  const categories = await getCategories();
+  // Fetch categories with error handling
+  let categories: Category[] = [];
+  try {
+    categories = await getCategories();
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    // Continue with empty categories
+  }
 
   return (
     <>
