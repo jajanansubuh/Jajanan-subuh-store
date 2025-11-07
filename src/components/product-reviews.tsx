@@ -38,7 +38,7 @@ const ProductReviews: React.FC<Props> = ({ productId }) => {
   // can fall back to the current page origin when NEXT_PUBLIC_API_URL isn't set.
   const getApiBase = () => {
     const envBase =
-      process.env.NEXT_PUBLIC_API_URL || process.env.PUBLIC_API_URL;
+      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL;
     if (envBase && String(envBase).trim().length > 0)
       return String(envBase).replace(/\/+$/, "");
     if (typeof window !== "undefined") return window.location.origin;
