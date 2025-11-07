@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       quantity: Number(it.quantity) || 0,
     }));
 
-    const baseRaw = process.env.PUBLIC_API_URL;
+  const baseRaw = process.env.NEXT_PUBLIC_API_URL;
     if (!baseRaw)
       return NextResponse.json(
         { error: "PUBLIC_API_URL not configured" },
