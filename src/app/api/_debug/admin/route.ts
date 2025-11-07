@@ -43,9 +43,15 @@ export async function GET(req: Request) {
       url: testUrl,
       bodySnippet: text ? (text.length > 1000 ? text.slice(0, 1000) + "..." : text) : "",
     });
-  } catch (err: any) {
-    // Distinguish abort vs other errors
-    const message = err?.name === "AbortError" ? "timeout" : String(err?.message || err);
+  } catch (err: unknown) {
+    // Distinguish abort vs other errors, safely handling unknown
+    const message =
+      err instanceof Error
+        ? err.name === "AbortError"
+          ? "timeout"
+          : err.message
+        : String(err);
+
     return NextResponse.json({ ok: false, error: message }, { status: 500 });
   }
 }
