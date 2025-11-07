@@ -37,12 +37,12 @@ const ProductReviews: React.FC<Props> = ({ productId }) => {
   // Resolve API base at runtime so mobile clients (ngrok / different origin)
   // can fall back to the current page origin when NEXT_PUBLIC_API_URL isn't set.
   const getApiBase = () => {
-    const envBase =
-      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_URL;
-    if (envBase && String(envBase).trim().length > 0)
-      return String(envBase).replace(/\/+$/, "");
-    if (typeof window !== "undefined") return window.location.origin;
-    return "";
+    // Use environment variable if available
+    if (process.env.NEXT_PUBLIC_API_URL) {
+      return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
+    }
+    // Fallback to the deployed admin URL
+    return "https://jajanan-subuh-admin.vercel.app";
   };
 
   useEffect(() => {
@@ -52,7 +52,12 @@ const ProductReviews: React.FC<Props> = ({ productId }) => {
         const API_BASE = getApiBase();
         const url = `${API_BASE}/api/reviews?productId=${productId}`;
         console.debug("[PRODUCT_REVIEWS_FETCH] url=", url);
-        const res = await fetch(url);
+        const res = await fetch(url, {
+          headers: {
+            "Accept": "application/json"
+          },
+          mode: "cors"
+        });
         if (!res.ok) {
           // admin reviews endpoint may not exist yet; treat as empty
           if (!mounted) return;
@@ -85,7 +90,11 @@ const ProductReviews: React.FC<Props> = ({ productId }) => {
       console.debug("[PRODUCT_REVIEWS_POST] url=", url);
       const res = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        mode: "cors",
         body: JSON.stringify({ productId, name, rating, comment }),
       });
       console.debug("[PRODUCT_REVIEWS_POST] status=", res.status);
