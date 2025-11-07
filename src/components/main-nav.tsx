@@ -28,11 +28,17 @@ const MainNav: React.FC<MainNavProps> = ({ data }) => {
     setMounted(true);
   }, []);
 
-  const routes = data.map((route) => ({
-    href: `/category/${route.id}`,
-    label: route.name,
-    active: pathname === `/category/${route.id}`,
-  }));
+  const routes = data.map((route) => {
+    // Normalize category label: remove newlines and collapse multiple spaces so
+    // long or multiline names from admin don't break the navbar layout.
+    const label = String(route.name ?? "").replace(/\s+/g, " ").trim();
+
+    return {
+      href: `/category/${route.id}`,
+      label: label || "Unnamed",
+      active: pathname === `/category/${route.id}`,
+    };
+  });
 
   return (
     <nav className="mx-6 flex items-center space-x-4 lg:space-x-6 overflow-x-auto flex-nowrap whitespace-nowrap">
