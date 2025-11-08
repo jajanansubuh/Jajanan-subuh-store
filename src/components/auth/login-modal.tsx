@@ -37,7 +37,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        await response.json();
         // Handle successful login/register
         onClose();
       } else {
