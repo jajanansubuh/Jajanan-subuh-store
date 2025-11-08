@@ -43,12 +43,23 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       });
 
       if (response.ok) {
-        await response.json();
-        // Handle successful login/register
+        const data = await response.json();
+        // Handle successful login/register: show a simple confirmation and close
+        try {
+          // prefer toast if available, fallback to alert
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          const toast = (globalThis as any)?.toast;
+          if (toast) toast.success(isLogin ? "Logged in" : "Account created");
+          else alert(isLogin ? "Logged in" : "Account created");
+        } catch {
+          // ignore
+        }
         onClose();
       } else {
         // Handle error
-        console.error("Authentication failed");
+        const errText = await response.text();
+        console.error("Authentication failed", errText);
+        alert("Authentication failed: " + errText);
       }
     } catch (error) {
       console.error("Authentication error:", error);
