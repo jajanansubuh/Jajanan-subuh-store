@@ -49,15 +49,12 @@ const ProductReviews: React.FC<Props> = ({ productId }) => {
     let mounted = true;
     (async () => {
       try {
-        const API_BASE = getApiBase();
-        const url = `${API_BASE}/api/reviews?productId=${productId}`;
+        // Call the store's local API proxy. This keeps server-side rendering
+        // stable (server components call internal routes) and avoids
+        // cross-origin issues.
+        const url = `/api/reviews?productId=${productId}`;
         console.debug("[PRODUCT_REVIEWS_FETCH] url=", url);
-        const res = await fetch(url, {
-          headers: {
-            "Accept": "application/json"
-          },
-          mode: "cors"
-        });
+        const res = await fetch(url, { headers: { Accept: "application/json" } });
         if (!res.ok) {
           // admin reviews endpoint may not exist yet; treat as empty
           if (!mounted) return;
@@ -85,16 +82,15 @@ const ProductReviews: React.FC<Props> = ({ productId }) => {
     if (!name || !comment) return;
     setLoading(true);
     try {
-      const API_BASE = getApiBase();
-      const url = `${API_BASE}/api/reviews`;
+      // Post to the store's local proxy which forwards to the admin API.
+      const url = `/api/reviews`;
       console.debug("[PRODUCT_REVIEWS_POST] url=", url);
       const res = await fetch(url, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json"
+          "Accept": "application/json",
         },
-        mode: "cors",
         body: JSON.stringify({ productId, name, rating, comment }),
       });
       console.debug("[PRODUCT_REVIEWS_POST] status=", res.status);
