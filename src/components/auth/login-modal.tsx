@@ -52,7 +52,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <div className="fixed inset-0 z-50 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+          <div className="flex justify-end">
+            <button
+              aria-label="Close"
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-900"
+            >
+              ×
+            </button>
+          </div>
+          <div className="px-2">
           <h2 className="text-2xl font-bold mb-6">
             {isLogin ? "Login" : "Sign Up"}
           </h2>
@@ -64,6 +74,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 <Input
                   id="name"
                   type="text"
+                  placeholder="Nama lengkap"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required={!isLogin}
@@ -77,10 +88,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <Input
                 id="email"
                 type="email"
+                placeholder="you@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full"
+                autoFocus
               />
             </div>
             
@@ -89,6 +102,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
               <Input
                 id="password"
                 type="password"
+                placeholder="Minimal 8 karakter"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -101,6 +115,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </Button>
           </form>
           
+          </div>
           <div className="mt-4 text-center">
             <button
               type="button"

@@ -59,6 +59,18 @@ export default function NavActions({ categories }: { categories: Category[] }) {
           <CartButton onOpen={() => setOpen(true)} autoHide={false} />
         </div>
 
+        {/* Mobile: show user icon next to mobile menu so users can open login on small screens */}
+        <div className="lg:hidden flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setLoginModalOpen(true)}
+            className="hover:bg-[#18442a] hover:text-white"
+          >
+            <UserIcon className="h-5 w-5" />
+          </Button>
+        </div>
+
         <div className="lg:hidden">
           <MobileMenu data={categories} hideWhenSearchOpen={searchOpen} />
         </div>
