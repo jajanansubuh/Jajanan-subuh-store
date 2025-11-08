@@ -34,16 +34,6 @@ const ProductReviews: React.FC<Props> = ({ productId }) => {
   const [rating, setRating] = useState<number>(5);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(false);
-  // Resolve API base at runtime so mobile clients (ngrok / different origin)
-  // can fall back to the current page origin when NEXT_PUBLIC_API_URL isn't set.
-  const getApiBase = () => {
-    // Use environment variable if available
-    if (process.env.NEXT_PUBLIC_API_URL) {
-      return process.env.NEXT_PUBLIC_API_URL.replace(/\/+$/, "");
-    }
-    // Fallback to the deployed admin URL
-    return "https://jajanan-subuh-admin.vercel.app";
-  };
 
   useEffect(() => {
     let mounted = true;
