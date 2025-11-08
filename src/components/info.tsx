@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Product } from "@/types";
-// import from "./ui/"; // Removed invalid import causing build error
 import { Button } from "./ui/button";
 import Currency from "./ui/currency";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -18,7 +17,6 @@ interface InfoProps {
 }
 
 const Info: React.FC<InfoProps> = ({ data }) => {
-  // window is unavailable during SSR. Resolve origin on the client.
   const [origin, setOrigin] = useState<string>("");
 
   useEffect(() => {

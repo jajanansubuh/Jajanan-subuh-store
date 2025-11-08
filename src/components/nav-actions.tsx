@@ -6,15 +6,18 @@ import MobileMenu from "./mobile-menu";
 import CartButton from "./cart-button";
 import dynamic from "next/dynamic";
 import { Category } from "@/types";
+import { Button } from "@/components/ui/button";
+import { UserIcon } from "lucide-react";
 
 const CartDrawer = dynamic(() => import("./cart-drawer"), { ssr: false });
+const LoginModal = dynamic(() => import("./auth/login-modal"), { ssr: false });
 
 export default function NavActions({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
 
-  // notify other components when the cart drawer opens/closes so they
-  // can adjust their UI (for example: hide inline AddToCart controls)
+
   useEffect(() => {
     try {
       window.dispatchEvent(
@@ -43,8 +46,16 @@ export default function NavActions({ categories }: { categories: Category[] }) {
       <div className="absolute right-4 flex items-center gap-2">
         <NavbarSearch />
 
-        {/* Desktop/tablet: show cart inside navbar */}
-        <div className="hidden lg:inline-flex">
+        {/* Desktop/tablet: show cart and login inside navbar */}
+        <div className="hidden lg:inline-flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setLoginModalOpen(true)}
+            className="hover:bg-[#18442a] hover:text-white"
+          >
+            <UserIcon className="h-5 w-5" />
+          </Button>
           <CartButton onOpen={() => setOpen(true)} autoHide={false} />
         </div>
 
@@ -67,6 +78,7 @@ export default function NavActions({ categories }: { categories: Category[] }) {
       </div>
 
       {open && <CartDrawer onClose={() => setOpen(false)} />}
+      <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
     </>
   );
 }
