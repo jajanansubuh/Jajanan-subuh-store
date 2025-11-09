@@ -27,12 +27,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     e.preventDefault();
     
     try {
-      const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:3000';
-      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+      const adminUrl = process.env.NEXT_PUBLIC_ADMIN_API_URL;
+      if (!adminUrl) {
+        throw new Error("Admin API URL is not configured");
+      }
+      const endpoint = isLogin ? "/auth/login" : "/auth/register";
       const response = await fetch(`${adminUrl}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
         body: JSON.stringify({
           email,
@@ -55,12 +59,20 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         onClose();
       } else {
         // Handle error
-        const errText = await response.text();
-        console.error("Authentication failed", errText);
-        alert("Authentication failed: " + errText);
+        try {
+          const errorData = await response.json();
+          const errorMessage = errorData.message || errorData.error || 'Authentication failed';
+          console.error("Authentication failed", errorData);
+          alert(errorMessage);
+        } catch {
+          const errText = await response.text();
+          console.error("Authentication failed", errText);
+          alert("Authentication failed. Please try again.");
+        }
       }
     } catch (error) {
       console.error("Authentication error:", error);
+      alert("An error occurred while trying to authenticate. Please try again.");
     }
   };
 
