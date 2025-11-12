@@ -58,9 +58,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         credentials: 'include',
       });
 
+      // Read body once and parse accordingly to avoid "body stream already read"
+      const text = await response.text();
       if (response.ok) {
-        await response.json(); // consume the response
-        // Handle successful login/register: show a simple confirmation and close
+        // Try to parse JSON, but don't fail if it's empty/non-JSON
+        try {
+          const data = text ? JSON.parse(text) : null;
+          // (optional) use returned data if needed
+        } catch (_) {
+          // ignore parse errors for success responses
+        }
         try {
           const toast = window?.toast;
           if (toast) toast.success(isLogin ? "Logged in" : "Account created");
@@ -70,17 +77,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         }
         onClose();
       } else {
-        // Handle error
+        // Handle error: try to parse JSON first, otherwise use raw text
+        let errorMessage = 'Authentication failed';
         try {
-          const errorData = await response.json();
-          const errorMessage = errorData.message || errorData.error || 'Authentication failed';
-          console.error("Authentication failed", errorData);
-          alert(errorMessage);
+          const err = text ? JSON.parse(text) : null;
+          errorMessage = err?.message || err?.error || errorMessage;
+          console.error("Authentication failed", err ?? text);
         } catch {
-          const errText = await response.text();
-          console.error("Authentication failed", errText);
-          alert("Authentication failed. Please try again.");
+          console.error("Authentication failed", text);
         }
+        alert(errorMessage);
       }
     } catch (error) {
       console.error("Authentication error:", error);
