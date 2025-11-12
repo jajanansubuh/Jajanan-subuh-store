@@ -38,7 +38,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       // Provide the store id via NEXT_PUBLIC_STORE_ID in the storefront env.
       const storeId = process.env.NEXT_PUBLIC_STORE_ID;
 
-      const body: any = {
+      const body: { email: string; password: string; name?: string; storeId?: string } = {
         email,
         password,
         ...(isLogin ? {} : { name }),
