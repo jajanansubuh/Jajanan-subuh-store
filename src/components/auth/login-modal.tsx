@@ -32,17 +32,28 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         throw new Error("Admin API URL is not configured");
       }
       const endpoint = isLogin ? "/auth/login" : "/auth/register";
+      // Include optional storeId when registering from the storefront so the
+      // admin can associate the created user with the correct store.
+      // Provide the store id via NEXT_PUBLIC_STORE_ID in the storefront env.
+      const storeId = process.env.NEXT_PUBLIC_STORE_ID;
+
+      const body: any = {
+        email,
+        password,
+        ...(isLogin ? {} : { name }),
+      };
+
+      if (!isLogin && storeId) {
+        body.storeId = storeId;
+      }
+
       const response = await fetch(`${adminUrl}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
         },
-        body: JSON.stringify({
-          email,
-          password,
-          ...(isLogin ? {} : { name }),
-        }),
+        body: JSON.stringify(body),
         credentials: 'include',
       });
 
