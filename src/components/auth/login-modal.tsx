@@ -63,9 +63,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       if (response.ok) {
         // Try to parse JSON, but don't fail if it's empty/non-JSON
         try {
-          const data = text ? JSON.parse(text) : null;
+          const _data = text ? JSON.parse(text) : null;
           // (optional) use returned data if needed
-        } catch (_) {
+          void _data;
+        } catch {
           // ignore parse errors for success responses
         }
         try {
