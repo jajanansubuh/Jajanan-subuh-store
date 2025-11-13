@@ -34,11 +34,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       if (!adminUrl) {
         throw new Error("Admin API URL is not configured");
       }
-  // use the admin API path under /api
-  const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
-      // Include optional storeId when registering from the storefront so the
-      // admin can associate the created user with the correct store.
-      // Provide the store id via NEXT_PUBLIC_STORE_ID in the storefront env.
+
+      // Normalize admin URL to remove trailing slash
+      const normalizedAdminUrl = adminUrl.replace(/\/$/, "");
+      const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+
       const storeId = process.env.NEXT_PUBLIC_STORE_ID;
 
       const body: { 
@@ -65,11 +65,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         if (gender) body.gender = gender;
       }
 
-      const response = await fetch(`${adminUrl}${endpoint}`, {
+      const response = await fetch(`${normalizedAdminUrl}${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Accept": "application/json",
+          "x-debug": "true", // Enable debug mode to get detailed error messages
         },
         body: JSON.stringify(body),
         credentials: 'include',
@@ -99,10 +100,17 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
         let errorMessage = 'Authentication failed';
         try {
           const err = text ? JSON.parse(text) : null;
-          errorMessage = err?.message || err?.error || errorMessage;
-          console.error("Authentication failed", err ?? text);
+          errorMessage = err?.message || err?.error || err?.detail || errorMessage;
+          console.error("Authentication failed:", {
+            status: response.status,
+            error: err,
+            raw: text
+          });
         } catch {
-          console.error("Authentication failed", text);
+          console.error("Authentication failed:", {
+            status: response.status,
+            raw: text
+          });
         }
         alert(errorMessage);
       }
