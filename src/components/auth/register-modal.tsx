@@ -15,9 +15,10 @@ import { Label } from "@/components/ui/label";
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSwitchToLogin?: () => void;
 }
 
-export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
+export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: RegisterModalProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -187,6 +188,20 @@ export default function RegisterModal({ isOpen, onClose }: RegisterModalProps) {
             Sign Up
           </Button>
         </form>
+        <div className="mt-4 text-center">
+          <span className="text-sm">Sudah punya akun?{' '}
+            <button
+              type="button"
+              className="text-blue-600 hover:underline font-semibold"
+              onClick={() => {
+                if (onSwitchToLogin) {
+                  onClose();
+                  onSwitchToLogin();
+                }
+              }}
+            >Login</button>
+          </span>
+        </div>
         <DialogClose />
       </DialogContent>
     </Dialog>

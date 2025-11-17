@@ -11,12 +11,13 @@ import { UserIcon } from "lucide-react";
 
 const CartDrawer = dynamic(() => import("./cart-drawer"), { ssr: false });
 const LoginModal = dynamic(() => import("./auth/login-modal"), { ssr: false });
+const RegisterModal = dynamic(() => import("./auth/register-modal"), { ssr: false });
 
 export default function NavActions({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
-
+  const [registerModalOpen, setRegisterModalOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -40,6 +41,16 @@ export default function NavActions({ categories }: { categories: Category[] }) {
         onSearch as EventListener
       );
   }, []);
+
+  // Navigasi antar modal
+  const handleSwitchToRegister = () => {
+    setLoginModalOpen(false);
+    setRegisterModalOpen(true);
+  };
+  const handleSwitchToLogin = () => {
+    setRegisterModalOpen(false);
+    setLoginModalOpen(true);
+  };
 
   return (
     <>
@@ -90,7 +101,16 @@ export default function NavActions({ categories }: { categories: Category[] }) {
       </div>
 
       {open && <CartDrawer onClose={() => setOpen(false)} />}
-      <LoginModal isOpen={loginModalOpen} onClose={() => setLoginModalOpen(false)} />
+      <LoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
+      <RegisterModal
+        isOpen={registerModalOpen}
+        onClose={() => setRegisterModalOpen(false)}
+        onSwitchToLogin={handleSwitchToLogin}
+      />
     </>
   );
 }
