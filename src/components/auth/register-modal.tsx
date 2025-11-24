@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -70,9 +71,10 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
           void _data;
         } catch {}
         try {
-          const toast = window?.toast;
-          if (toast) toast.success("Account created");
-          else alert("Account created");
+          toast.success("Akun berhasil dibuat");
+        } catch {}
+        try {
+          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email } }));
         } catch {}
         onClose();
       } else {

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -50,9 +51,10 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
           void _data;
         } catch {}
         try {
-          const toast = window?.toast;
-          if (toast) toast.success("Logged in");
-          else alert("Logged in");
+          toast.success("Berhasil login");
+        } catch {}
+        try {
+          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email } }));
         } catch {}
         onClose();
       } else {
