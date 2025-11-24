@@ -56,7 +56,7 @@ export default function NavActions({ categories }: { categories: Category[] }) {
 
   // listen for login events from modals to update UI
   useEffect(() => {
-    function onLogin(e: Event) {
+    function onLogin() {
       setIsAuthenticated(true);
     }
     window.addEventListener("jjs_user_logged_in", onLogin as EventListener);
