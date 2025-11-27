@@ -202,7 +202,7 @@ export const CheckoutModal = () => {
       }
       window.addEventListener("jjs_user_logged_in", onUserLoggedIn as EventListener);
       // cleanup
-      const cleanup = () => window.removeEventListener("jjs_user_logged_in", onUserLoggedIn as EventListener);
+      cleanup = () => window.removeEventListener("jjs_user_logged_in", onUserLoggedIn as EventListener);
       try {
         // The frontend store may know the storeId by environment or admin base.
         // Try to build a URL from NEXT_PUBLIC_API_URL or NEXT_PUBLIC_ADMIN_URL.

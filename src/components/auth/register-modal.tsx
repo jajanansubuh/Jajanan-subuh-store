@@ -12,6 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 interface RegisterModalProps {
   isOpen: boolean;
@@ -161,17 +168,16 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
 
             <div>
               <Label htmlFor="gender" className="text-sm font-medium">Jenis Kelamin</Label>
-              <select
-                id="gender"
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Pilih jenis kelamin</option>
-                <option value="MALE">Laki-laki</option>
-                <option value="FEMALE">Perempuan</option>
-                <option value="OTHER">Lainnya</option>
-              </select>
+              <Select value={gender} onValueChange={(v) => setGender(v)}>
+                <SelectTrigger className="w-full mt-1">
+                  <SelectValue placeholder="Pilih jenis kelamin" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="MALE">Laki-laki</SelectItem>
+                  <SelectItem value="FEMALE">Perempuan</SelectItem>
+                  <SelectItem value="OTHER">Lainnya</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="md:col-span-2">

@@ -71,6 +71,15 @@ export default function NavActions({ categories }: { categories: Category[] }) {
     return () => window.removeEventListener("jjs_user_logged_in", onLogin as EventListener);
   }, []);
 
+  // listen for requests from other components to open login modal
+  useEffect(() => {
+    function onRequestOpenLogin() {
+      setLoginModalOpen(true);
+    }
+    window.addEventListener("jjs_request_open_login", onRequestOpenLogin as EventListener);
+    return () => window.removeEventListener("jjs_request_open_login", onRequestOpenLogin as EventListener);
+  }, []);
+
   const handleLogout = async () => {
     try {
       const adminUrl = process.env.NEXT_PUBLIC_ADMIN_API_URL;
