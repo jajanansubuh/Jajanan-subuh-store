@@ -193,7 +193,7 @@ export const CheckoutModal = () => {
       }
 
       // helper to prefill from a profile object
-      const prefillFromProfile = (profile: Record<string, any> | null | undefined) => {
+      const prefillFromProfile = (profile: Record<string, unknown> | null | undefined) => {
         if (!profile || typeof profile !== "object") return;
         try {
           const name = (profile["name"] || profile["fullName"] || profile["displayName"] || profile["username"] || "") as string;
@@ -208,11 +208,11 @@ export const CheckoutModal = () => {
       // listen for login events and re-fetch profile to prefill; if event includes profile, use it immediately
       function onUserLoggedIn(e: Event) {
         try {
-          const ev = e as CustomEvent<Record<string, any>>;
-          const profile = ev?.detail?.profile;
-          if (profile) {
+          const ev = e as CustomEvent<Record<string, unknown>>;
+          const profile = ev?.detail?.profile as unknown;
+          if (profile && typeof profile === "object") {
             setIsAuthenticated(true);
-            prefillFromProfile(profile);
+            prefillFromProfile(profile as Record<string, unknown>);
             return;
           }
         } catch {}

@@ -46,7 +46,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
       });
       const text = await response.text();
       if (response.ok) {
-        let parsed: any = null;
+        let parsed: unknown = null;
         try {
           parsed = text ? JSON.parse(text) : null;
         } catch {}
@@ -55,7 +55,7 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
         } catch {}
         try {
           // include parsed profile if server returned it so other components can prefill immediately
-          let profileToSend = parsed;
+          let profileToSend: unknown = parsed;
           if (!profileToSend) {
             try {
               const adminBase = normalizedAdminUrl.replace(/\/$/, "");
@@ -77,7 +77,12 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
             } catch {}
           }
 
-          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email, profile: profileToSend } }));
+          // normalize profileToSend to an object or null
+          const profileObj: Record<string, unknown> | null =
+            profileToSend && typeof profileToSend === "object"
+              ? (profileToSend as Record<string, unknown>)
+              : null;
+          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email, profile: profileObj } }));
         } catch {}
         onClose();
       } else {

@@ -73,7 +73,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
       });
       const text = await response.text();
       if (response.ok) {
-        let parsed: any = null;
+        let parsed: unknown = null;
         try {
           parsed = text ? JSON.parse(text) : null;
         } catch {}
@@ -81,7 +81,7 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
           toast.success("Akun berhasil dibuat");
         } catch {}
         try {
-          let profileToSend = parsed;
+          let profileToSend: unknown = parsed;
           if (!profileToSend) {
             try {
               const adminBase = normalizedAdminUrl.replace(/\/$/, "");
@@ -102,7 +102,11 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
             } catch {}
           }
 
-          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email, profile: profileToSend } }));
+          const profileObj: Record<string, unknown> | null =
+            profileToSend && typeof profileToSend === "object"
+              ? (profileToSend as Record<string, unknown>)
+              : null;
+          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email, profile: profileObj } }));
         } catch {}
         onClose();
       } else {
