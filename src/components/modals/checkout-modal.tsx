@@ -39,7 +39,6 @@ export const CheckoutModal = () => {
   const { items, clear } = useCart();
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [currentUser, setCurrentUser] = useState<Record<string, unknown> | null>(null);
   const [storePaymentOptions, setStorePaymentOptions] = useState<
     { value: string; label: string; disabled?: boolean }[] | null
   >(null);
@@ -153,7 +152,7 @@ export const CheckoutModal = () => {
       // when modal opens, try to fetch current user profile to prefill form
       const fetchCurrentUser = async () => {
         try {
-          const adminBase = (process.env.NEXT_PUBLIC_ADMIN_API_URL || process.env.NEXT_PUBLIC_ADMIN_URL || "").replace(/\/$/, "");
+            const adminBase = (process.env.NEXT_PUBLIC_ADMIN_API_URL || process.env.NEXT_PUBLIC_ADMIN_URL || "").replace(/\/$/, "");
           const tryFetchUser = async (url: string) => {
             try {
               const r = await fetch(url, { method: "GET", credentials: "include", headers: { Accept: "application/json" } });
@@ -172,7 +171,6 @@ export const CheckoutModal = () => {
 
           if (profile && typeof profile === "object") {
             setIsAuthenticated(true);
-            setCurrentUser(profile as Record<string, unknown>);
             // set form defaults without overwriting user input
             try {
               const name = (profile["name"] || profile["fullName"] || profile["displayName"] || profile["username"] || "") as string;
@@ -184,11 +182,9 @@ export const CheckoutModal = () => {
             } catch {}
           } else {
             setIsAuthenticated(false);
-            setCurrentUser(null);
           }
-        } catch (err) {
+        } catch {
           setIsAuthenticated(false);
-          setCurrentUser(null);
         }
       };
 
@@ -414,6 +410,7 @@ export const CheckoutModal = () => {
         } catch {}
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modal.isOpen, items, modalStoreId]);
 
   // when store options change, set default values for the form selects
