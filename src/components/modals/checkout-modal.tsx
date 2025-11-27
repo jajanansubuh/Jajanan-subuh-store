@@ -38,6 +38,8 @@ export const CheckoutModal = () => {
   const modal = useCheckoutModal();
   const { items, clear } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<Record<string, unknown> | null>(null);
   const [storePaymentOptions, setStorePaymentOptions] = useState<
     { value: string; label: string; disabled?: boolean }[] | null
   >(null);
@@ -143,8 +145,64 @@ export const CheckoutModal = () => {
       return;
     }
 
+    // prepare a cleanup handler placeholder for listeners created below
+    let cleanup: (() => void) | null = null;
+
     // when modal opens, try to fetch store-level methods from admin
     (async () => {
+      // when modal opens, try to fetch current user profile to prefill form
+      const fetchCurrentUser = async () => {
+        try {
+          const adminBase = (process.env.NEXT_PUBLIC_ADMIN_API_URL || process.env.NEXT_PUBLIC_ADMIN_URL || "").replace(/\/$/, "");
+          const tryFetchUser = async (url: string) => {
+            try {
+              const r = await fetch(url, { method: "GET", credentials: "include", headers: { Accept: "application/json" } });
+              if (!r.ok) return null;
+              return await r.json().catch(() => null);
+            } catch {
+              return null;
+            }
+          };
+
+          // prefer local proxy first
+          let profile = await tryFetchUser(`/api/auth/me`);
+          if (!profile && adminBase) {
+            profile = await tryFetchUser(`${adminBase}/api/auth/me`);
+          }
+
+          if (profile && typeof profile === "object") {
+            setIsAuthenticated(true);
+            setCurrentUser(profile as Record<string, unknown>);
+            // set form defaults without overwriting user input
+            try {
+              const name = (profile["name"] || profile["fullName"] || profile["displayName"] || profile["username"] || "") as string;
+              const address = (profile["address"] || profile["shippingAddress"] || profile["alamat"] || "") as string;
+              const phone = (profile["phone"] || profile["phoneNumber"] || profile["mobile"] || "") as string;
+              if (name && !form.getValues("fullName")) form.setValue("fullName", name);
+              if (address && !form.getValues("address")) form.setValue("address", address);
+              if (phone && !form.getValues("phone")) form.setValue("phone", phone);
+            } catch {}
+          } else {
+            setIsAuthenticated(false);
+            setCurrentUser(null);
+          }
+        } catch (err) {
+          setIsAuthenticated(false);
+          setCurrentUser(null);
+        }
+      };
+
+      if (modal.isOpen) {
+        void fetchCurrentUser();
+      }
+
+      // listen for login events and re-fetch profile to prefill
+      function onUserLoggedIn() {
+        void fetchCurrentUser();
+      }
+      window.addEventListener("jjs_user_logged_in", onUserLoggedIn as EventListener);
+      // cleanup
+      const cleanup = () => window.removeEventListener("jjs_user_logged_in", onUserLoggedIn as EventListener);
       try {
         // The frontend store may know the storeId by environment or admin base.
         // Try to build a URL from NEXT_PUBLIC_API_URL or NEXT_PUBLIC_ADMIN_URL.
@@ -350,6 +408,11 @@ export const CheckoutModal = () => {
 
     return () => {
       mounted = false;
+      if (cleanup) {
+        try {
+          cleanup();
+        } catch {}
+      }
     };
   }, [modal.isOpen, items, modalStoreId]);
 
@@ -389,6 +452,13 @@ export const CheckoutModal = () => {
   const submittingRef = useRef(false);
 
   const onSubmit = (values: FormValues) => {
+    if (!isAuthenticated) {
+      toast.error("Silakan login terlebih dahulu untuk melanjutkan checkout.");
+      try {
+        window.dispatchEvent(new CustomEvent("jjs_request_open_login"));
+      } catch {}
+      return;
+    }
     // server-side validate stock before proceeding
     (async () => {
       // prevent double submit at component-level
