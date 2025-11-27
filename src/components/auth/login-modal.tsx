@@ -54,6 +54,11 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
           toast.success("Berhasil login");
         } catch {}
         try {
+          // set a small local flag so other components that mounted after the event
+          // can detect that a login occurred earlier (useful for modals opened later)
+          try {
+            localStorage.setItem("jjs_logged_in", "1");
+          } catch {}
           window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email } }));
         } catch {}
         onClose();

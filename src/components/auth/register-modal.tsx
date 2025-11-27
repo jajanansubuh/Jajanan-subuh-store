@@ -81,6 +81,9 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
           toast.success("Akun berhasil dibuat");
         } catch {}
         try {
+          try {
+            localStorage.setItem("jjs_logged_in", "1");
+          } catch {}
           window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email } }));
         } catch {}
         onClose();

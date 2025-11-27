@@ -149,6 +149,12 @@ export const CheckoutModal = () => {
 
     // when modal opens, try to fetch store-level methods from admin
     (async () => {
+      // quick sync from localStorage in case login happened earlier (before modal mounted)
+      try {
+        if (typeof window !== "undefined" && localStorage.getItem("jjs_logged_in") === "1") {
+          setIsAuthenticated(true);
+        }
+      } catch {}
       // when modal opens, try to fetch current user profile to prefill form
       const fetchCurrentUser = async () => {
         try {

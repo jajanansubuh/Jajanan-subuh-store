@@ -93,6 +93,7 @@ export default function NavActions({ categories }: { categories: Category[] }) {
     } finally {
       setIsAuthenticated(false);
       try { toast.success("Berhasil logout"); } catch {}
+      try { localStorage.removeItem("jjs_logged_in"); } catch {}
       try { window.dispatchEvent(new CustomEvent("jjs_user_logged_out")); } catch {}
     }
   };
