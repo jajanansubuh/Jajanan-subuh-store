@@ -9,6 +9,13 @@ import { Category } from "@/types";
 import { Button } from "@/components/ui/button";
 import { UserIcon } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const CartDrawer = dynamic(() => import("./cart-drawer"), { ssr: false });
 const LoginModal = dynamic(() => import("./auth/login-modal"), { ssr: false });
@@ -20,6 +27,7 @@ export default function NavActions({ categories }: { categories: Category[] }) {
   const [loginModalOpen, setLoginModalOpen] = useState(false);
   const [registerModalOpen, setRegisterModalOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -80,6 +88,16 @@ export default function NavActions({ categories }: { categories: Category[] }) {
     }
   };
 
+  const onRequestLogout = () => {
+    // open confirmation dialog
+    setLogoutConfirmOpen(true);
+  };
+
+  const confirmLogout = async () => {
+    setLogoutConfirmOpen(false);
+    await handleLogout();
+  };
+
   return (
     <>
       <div className="absolute right-4 flex items-center gap-2">
@@ -88,7 +106,7 @@ export default function NavActions({ categories }: { categories: Category[] }) {
         {/* Desktop/tablet: show cart and login inside navbar */}
         <div className="hidden lg:inline-flex items-center gap-2">
           {isAuthenticated ? (
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="hover:bg-[#18442a] hover:text-white">
+            <Button variant="ghost" size="icon" onClick={onRequestLogout} className="hover:bg-[#18442a] hover:text-white">
               <span className="sr-only">Logout</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 4.5A1.5 1.5 0 014.5 3h6A1.5 1.5 0 0112 4.5v2a.75.75 0 01-1.5 0v-2c0-.276.224-.5.5-.5h-6c-.276 0-.5.224-.5.5v11c0 .276.224.5.5.5h6c.276 0 .5-.224.5-.5v-2a.75.75 0 011.5 0v2A1.5 1.5 0 0110.5 18h-6A1.5 1.5 0 013 16.5v-12z" clipRule="evenodd" />
@@ -111,7 +129,7 @@ export default function NavActions({ categories }: { categories: Category[] }) {
         {/* Mobile: show user icon next to mobile menu so users can open login on small screens */}
         <div className="lg:hidden flex items-center gap-2">
           {isAuthenticated ? (
-            <Button variant="ghost" size="icon" onClick={handleLogout} className="hover:bg-[#18442a] hover:text-white">
+            <Button variant="ghost" size="icon" onClick={onRequestLogout} className="hover:bg-[#18442a] hover:text-white">
               <span className="sr-only">Logout</span>
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 4.5A1.5 1.5 0 014.5 3h6A1.5 1.5 0 0112 4.5v2a.75.75 0 01-1.5 0v-2c0-.276.224-.5.5-.5h-6c-.276 0-.5.224-.5.5v11c0 .276.224.5.5.5h6c.276 0 .5-.224.5-.5v-2a.75.75 0 011.5 0v2A1.5 1.5 0 0110.5 18h-6A1.5 1.5 0 013 16.5v-12z" clipRule="evenodd" />
@@ -159,6 +177,18 @@ export default function NavActions({ categories }: { categories: Category[] }) {
         onClose={() => setRegisterModalOpen(false)}
         onSwitchToLogin={handleSwitchToLogin}
       />
+      <Dialog open={logoutConfirmOpen} onOpenChange={(open) => setLogoutConfirmOpen(open)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Konfirmasi Logout</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">Apakah Anda yakin ingin logout?</div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setLogoutConfirmOpen(false)}>Tidak</Button>
+            <Button onClick={() => void confirmLogout()} className="ml-2">Ya</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
