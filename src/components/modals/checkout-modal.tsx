@@ -449,13 +449,128 @@ export const CheckoutModal = () => {
   const submittingRef = useRef(false);
 
   const onSubmit = (values: FormValues) => {
-    if (!isAuthenticated) {
-      toast.error("Silakan login terlebih dahulu untuk melanjutkan checkout.");
+    const ensureAuthAndPrefill = async () => {
+      if (isAuthenticated) return true;
       try {
-        window.dispatchEvent(new CustomEvent("jjs_request_open_login"));
+        const adminBase = (process.env.NEXT_PUBLIC_ADMIN_API_URL || process.env.NEXT_PUBLIC_ADMIN_URL || "").replace(/\/$/, "");
+        const tryFetchUser = async (url: string) => {
+          try {
+            const r = await fetch(url, { method: "GET", credentials: "include", headers: { Accept: "application/json" } });
+            if (!r.ok) return null;
+            return await r.json().catch(() => null);
+          } catch {
+            return null;
+          }
+        };
+
+        let profile = await tryFetchUser(`/api/auth/me`);
+        if (!profile && adminBase) {
+          profile = await tryFetchUser(`${adminBase}/api/auth/me`);
+        }
+        if (profile && typeof profile === "object") {
+          setIsAuthenticated(true);
+          try {
+            const name = (profile["name"] || profile["fullName"] || profile["displayName"] || profile["username"] || "") as string;
+            const address = (profile["address"] || profile["shippingAddress"] || profile["alamat"] || "") as string;
+            const phone = (profile["phone"] || profile["phoneNumber"] || profile["mobile"] || "") as string;
+            if (name && !form.getValues("fullName")) form.setValue("fullName", name);
+            if (address && !form.getValues("address")) form.setValue("address", address);
+            if (phone && !form.getValues("phone")) form.setValue("phone", phone);
+          } catch {}
+          return true;
+        }
       } catch {}
-      return;
-    }
+      return false;
+    };
+
+    // ensure auth one more time before blocking the submit
+    (async () => {
+      const ok = await ensureAuthAndPrefill();
+      if (!ok) {
+        toast.error("Silakan login terlebih dahulu untuk melanjutkan checkout.");
+        try {
+          window.dispatchEvent(new CustomEvent("jjs_request_open_login"));
+        } catch {}
+        return;
+      }
+
+      // proceed with the normal submit flow now that auth is confirmed
+      // server-side validate stock before proceeding
+      (async () => {
+        // prevent double submit at component-level
+        if (submittingRef.current) return;
+        submittingRef.current = true;
+        setIsLoading(true);
+        try {
+          const { res, json } = await validateStockRequest(
+            buildItemsPayload(items),
+            true, // validateOnly
+            modalStoreId ? { storeId: modalStoreId } : null
+          );
+
+          if (!res || !res.ok) {
+            const msg =
+              json && json.failed && json.failed.length
+                ? "Beberapa item stok tidak cukup"
+                : "Stok tidak valid";
+            toast.error(msg);
+            return;
+          }
+
+          // double-check required fields (react-hook-form will already validate)
+          if (
+            !values.fullName?.trim() ||
+            !values.address?.trim() ||
+            !values.phone?.trim()
+          ) {
+            toast.error("Nama, alamat, dan No HP wajib diisi.");
+            return;
+          }
+          try {
+            const { res: commitRes, json: commitJson } =
+              await validateStockRequest(
+                buildItemsPayload(items),
+                false,
+                Object.assign({}, modalStoreId ? { storeId: modalStoreId } : {}, {
+                  customerName: values.fullName,
+                  address: values.address,
+                  paymentMethod: values.paymentMethod,
+                  phone: values.phone,
+                  shippingMethod: values.shippingMethod,
+                })
+              );
+
+            if (!commitRes || !commitRes.ok) {
+              const errMsg =
+                (commitJson && (commitJson.error || commitJson.message)) ||
+                "Gagal membuat pesanan. Stok mungkin berubah.";
+              toast.error(String(errMsg));
+              return;
+            }
+          } catch (err) {
+            console.error("[CHECKOUT] commit failed", err);
+            toast.error("Gagal memproses pesanan. Coba lagi nanti.");
+            return;
+          }
+          try {
+            clear();
+          } catch {}
+          toast.success("Pesanan akan segera diproses. mohon ditunggu.");
+
+          modal.onClose();
+        } catch (err) {
+          // fallback: ensure modal still closed and notify
+          console.error("[CHECKOUT] unexpected error", err);
+          toast.error("Terjadi kesalahan saat memproses pesanan.");
+          modal.onClose();
+        } finally {
+          setIsLoading(false);
+          submittingRef.current = false;
+        }
+      })();
+    })();
+
+    return;
     // server-side validate stock before proceeding
     (async () => {
       // prevent double submit at component-level
