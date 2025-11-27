@@ -83,13 +83,13 @@ export default function LoginModal({ isOpen, onClose, onSwitchToRegister }: Logi
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-md sm:max-w-lg md:max-w-xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle className="text-2xl">Login</DialogTitle>
+          <p className="text-sm text-muted-foreground">Masuk ke akun Anda untuk melanjutkan</p>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700">Account Information</h3>
+        <form onSubmit={handleSubmit} className="space-y-6 max-w-sm mx-auto w-full">
+          <div className="space-y-3">
             <div>
               <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
               <Input

@@ -103,64 +103,25 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-full max-w-lg md:max-w-3xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Sign Up</DialogTitle>
+          <DialogTitle className="text-2xl">Daftar</DialogTitle>
+          <p className="text-sm text-muted-foreground">Buat akun untuk menyimpan pesanan dan data Anda</p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700">Personal Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
+              <Label htmlFor="name" className="text-sm font-medium">Nama Lengkap *</Label>
               <Input
                 id="name"
                 type="text"
-                placeholder="Enter your full name"
+                placeholder="Nama lengkap"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
                 className="w-full mt-1"
               />
             </div>
-            <div>
-              <Label htmlFor="phone" className="text-sm font-medium">Phone Number</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="e.g., +62 812 3456 7890"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="gender" className="text-sm font-medium">Gender</Label>
-              <select
-                id="gender"
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">Select your gender</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-                <option value="OTHER">Other</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="address" className="text-sm font-medium">Address</Label>
-              <textarea
-                id="address"
-                placeholder="Enter your complete address"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                rows={3}
-              />
-            </div>
-          </div>
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-700">Account Information</h3>
             <div>
               <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
               <Input
@@ -170,6 +131,18 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="w-full mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="phone" className="text-sm font-medium">No. HP</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="e.g., +62 812 3456 7890"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 className="w-full mt-1"
               />
             </div>
@@ -185,9 +158,36 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
                 className="w-full mt-1"
               />
             </div>
+
+            <div>
+              <Label htmlFor="gender" className="text-sm font-medium">Jenis Kelamin</Label>
+              <select
+                id="gender"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Pilih jenis kelamin</option>
+                <option value="MALE">Laki-laki</option>
+                <option value="FEMALE">Perempuan</option>
+                <option value="OTHER">Lainnya</option>
+              </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <Label htmlFor="address" className="text-sm font-medium">Alamat</Label>
+              <textarea
+                id="address"
+                placeholder="Masukkan alamat lengkap"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                rows={3}
+              />
+            </div>
           </div>
           <Button type="submit" className="w-full py-2 h-auto text-base">
-            Sign Up
+            Daftar
           </Button>
         </form>
         <div className="mt-4 text-center">
