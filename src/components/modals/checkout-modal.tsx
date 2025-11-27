@@ -149,12 +149,6 @@ export const CheckoutModal = () => {
 
     // when modal opens, try to fetch store-level methods from admin
     (async () => {
-      // quick sync from localStorage in case login happened earlier (before modal mounted)
-      try {
-        if (typeof window !== "undefined" && localStorage.getItem("jjs_logged_in") === "1") {
-          setIsAuthenticated(true);
-        }
-      } catch {}
       // when modal opens, try to fetch current user profile to prefill form
       const fetchCurrentUser = async () => {
         try {
@@ -198,8 +192,30 @@ export const CheckoutModal = () => {
         void fetchCurrentUser();
       }
 
-      // listen for login events and re-fetch profile to prefill
-      function onUserLoggedIn() {
+      // helper to prefill from a profile object
+      const prefillFromProfile = (profile: Record<string, any> | null | undefined) => {
+        if (!profile || typeof profile !== "object") return;
+        try {
+          const name = (profile["name"] || profile["fullName"] || profile["displayName"] || profile["username"] || "") as string;
+          const address = (profile["address"] || profile["shippingAddress"] || profile["alamat"] || "") as string;
+          const phone = (profile["phone"] || profile["phoneNumber"] || profile["mobile"] || "") as string;
+          if (name && !form.getValues("fullName")) form.setValue("fullName", name);
+          if (address && !form.getValues("address")) form.setValue("address", address);
+          if (phone && !form.getValues("phone")) form.setValue("phone", phone);
+        } catch {}
+      };
+
+      // listen for login events and re-fetch profile to prefill; if event includes profile, use it immediately
+      function onUserLoggedIn(e: Event) {
+        try {
+          const ev = e as CustomEvent<Record<string, any>>;
+          const profile = ev?.detail?.profile;
+          if (profile) {
+            setIsAuthenticated(true);
+            prefillFromProfile(profile);
+            return;
+          }
+        } catch {}
         void fetchCurrentUser();
       }
       window.addEventListener("jjs_user_logged_in", onUserLoggedIn as EventListener);

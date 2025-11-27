@@ -73,18 +73,36 @@ export default function RegisterModal({ isOpen, onClose, onSwitchToLogin }: Regi
       });
       const text = await response.text();
       if (response.ok) {
+        let parsed: any = null;
         try {
-          const _data = text ? JSON.parse(text) : null;
-          void _data;
+          parsed = text ? JSON.parse(text) : null;
         } catch {}
         try {
           toast.success("Akun berhasil dibuat");
         } catch {}
         try {
-          try {
-            localStorage.setItem("jjs_logged_in", "1");
-          } catch {}
-          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email } }));
+          let profileToSend = parsed;
+          if (!profileToSend) {
+            try {
+              const adminBase = normalizedAdminUrl.replace(/\/$/, "");
+              const tryFetchUser = async (url: string) => {
+                try {
+                  const r = await fetch(url, { method: "GET", credentials: "include", headers: { Accept: "application/json" } });
+                  if (!r.ok) return null;
+                  return await r.json().catch(() => null);
+                } catch {
+                  return null;
+                }
+              };
+
+              profileToSend = await tryFetchUser(`/api/auth/me`);
+              if (!profileToSend && adminBase) {
+                profileToSend = await tryFetchUser(`${adminBase}/api/auth/me`);
+              }
+            } catch {}
+          }
+
+          window.dispatchEvent(new CustomEvent("jjs_user_logged_in", { detail: { email, profile: profileToSend } }));
         } catch {}
         onClose();
       } else {

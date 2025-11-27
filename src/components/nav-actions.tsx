@@ -37,6 +37,39 @@ export default function NavActions({ categories }: { categories: Category[] }) {
     } catch {}
   }, [open]);
 
+  // on mount, try to detect existing session so navbar can show correct button
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const adminBase = (process.env.NEXT_PUBLIC_ADMIN_API_URL || process.env.NEXT_PUBLIC_ADMIN_URL || "").replace(/\/$/, "");
+        const tryFetchUser = async (url: string) => {
+          try {
+            const r = await fetch(url, { method: "GET", credentials: "include", headers: { Accept: "application/json" } });
+            if (!r.ok) return null;
+            return await r.json().catch(() => null);
+          } catch {
+            return null;
+          }
+        };
+
+        let profile = await tryFetchUser(`/api/auth/me`);
+        if (!profile && adminBase) {
+          // try admin absolute endpoint
+          profile = await tryFetchUser(`${adminBase}/api/auth/me`);
+        }
+
+        if (mounted && profile) {
+          setIsAuthenticated(true);
+        }
+      } catch {}
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   // listen for search open/close so we can hide mobile hamburger while typing
   useEffect(() => {
     function onSearch(e: Event) {
@@ -93,7 +126,6 @@ export default function NavActions({ categories }: { categories: Category[] }) {
     } finally {
       setIsAuthenticated(false);
       try { toast.success("Berhasil logout"); } catch {}
-      try { localStorage.removeItem("jjs_logged_in"); } catch {}
       try { window.dispatchEvent(new CustomEvent("jjs_user_logged_out")); } catch {}
     }
   };
